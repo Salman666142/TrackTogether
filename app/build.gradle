@@ -54,6 +54,9 @@ dependencies {
     implementation 'com.androidmapsextensions:android-maps-extensions:2.4.0'
 
     implementation 'com.google.maps.android:android-maps-utils:2.0.0'
+
+    implementation 'com.github.jd-alexander:library:1.1.0'
+    implementation 'com.firebaseui:firebase-ui-database:6.2.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

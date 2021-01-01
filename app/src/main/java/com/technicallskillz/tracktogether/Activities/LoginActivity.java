@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView createNewAccount;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
-    DatabaseReference mRef;
+    DatabaseReference mRef,admin;
     ProgressBar progressBar;
     DatabaseReference DataRef;
     boolean isAdmin;
@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         mAuth = FirebaseAuth.getInstance();
-        mRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        admin = FirebaseDatabase.getInstance().getReference().child("Admin");
         mRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         mUser=mAuth.getCurrentUser();
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (isAdmin)
         {
-            mRef.child("Admin").addValueEventListener(new ValueEventListener() {
+           admin.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists())
@@ -102,12 +102,10 @@ public class LoginActivity extends AppCompatActivity {
                         {
                             if (emailFirebase.equalsIgnoreCase(email) && passwordFirebase.equalsIgnoreCase(password))
                             {
-
                                 SharedPreferences.Editor editor = getSharedPreferences("login", MODE_PRIVATE).edit();
                                 editor.putString("type", "admin");
                                 editor.putString("profile", "completed");
                                 editor.apply();
-
 
                                 Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -118,13 +116,11 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, "Email OR Password is incorrect!", Toast.LENGTH_SHORT).show();
                             }
                         }
-
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-
                 }
             });
         }else {
@@ -151,8 +147,6 @@ public class LoginActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         CheckSetupProfileDataExist();
                                         Toast.makeText(LoginActivity.this, "Login Successfully ", Toast.LENGTH_SHORT).show();
-
-
                                     } else {
                                         progressBar.setVisibility(View.GONE);
                                         btnLogin.setEnabled(true);
@@ -179,45 +173,56 @@ public class LoginActivity extends AppCompatActivity {
         String type = prefs.getString("type", "no user");//"No name defined" is the default value.
         String profile = prefs.getString("profile", "uncomplete");//"No name defined" is the default value.
 
-        if (type.equalsIgnoreCase("user") && profile.equalsIgnoreCase("completed"))
-        {
-            Intent intent=new Intent(LoginActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (type.equalsIgnoreCase("user") && profile.equalsIgnoreCase("completed")) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
-        }else
-        {
-            Intent intent=new Intent(LoginActivity.this, SetupActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
+        } else {
+//        {
+//            Intent intent=new Intent(LoginActivity.this, SetupActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+//            finish();
+//        }
+
+
+            DataRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String exist=dataSnapshot.child("username").getValue().toString();
+                        if (exist==null)
+                        {
+                            Toast.makeText(LoginActivity.this, "exist==nnukk", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, SetupActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        }else
+                        {
+                            Toast.makeText(LoginActivity.this, "exist=!nnukk", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
+
+
+                    } else {
+                        Intent intent = new Intent(LoginActivity.this, SetupActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    Toast.makeText(LoginActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-
-
-//        DataRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                if (dataSnapshot.child("username").exists())
-//                {
-//                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    finish();
-//                }
-//                else
-//                {
-//                    Intent intent = new Intent(LoginActivity.this, SetupActivity.class);
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    finish();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                Toast.makeText(LoginActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 }

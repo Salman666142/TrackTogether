@@ -56,10 +56,7 @@ public class SplashActivity extends AppCompatActivity {
                       finish();
                   }else
                   {
-                      Intent intent=new Intent(SplashActivity.this, SetupActivity.class);
-                      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                      startActivity(intent);
-                      finish();
+                     CheckFirebase();
                   }
                 }else
                 {
@@ -82,5 +79,44 @@ public class SplashActivity extends AppCompatActivity {
         };
         new Handler().postDelayed(runnable, 5000);
 
+    }
+
+    private void CheckFirebase() {
+        DataRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String exist=dataSnapshot.child("username").getValue().toString();
+                    if (exist==null)
+                    {
+                        Toast.makeText(SplashActivity.this, "exist==nnukk", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SplashActivity.this, SetupActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }else
+                    {
+                        Toast.makeText(SplashActivity.this, "exist=!nnukk", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+
+
+                } else {
+                    Intent intent = new Intent(SplashActivity.this, SetupActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Toast.makeText(SplashActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

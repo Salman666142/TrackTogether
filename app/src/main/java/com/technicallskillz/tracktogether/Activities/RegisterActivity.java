@@ -90,9 +90,13 @@ public class RegisterActivity extends AppCompatActivity {
                         HashMap hashMap = new HashMap();
                         hashMap.put("email", mUser.getEmail());
                         hashMap.put("username","");
+                        hashMap.put("Lat",0.0);
+                        hashMap.put("Long",0.0);
                         hashMap.put("city","");
+                        hashMap.put("effected","no");
                         hashMap.put("status","offline");
                         hashMap.put("profileImageUrl","");
+
                         mRef.child(mUser.getUid()).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {

@@ -83,9 +83,10 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
         chceckPermission();
         SupportMapFragment supportMapFragment = SupportMapFragment.newInstance();
         getSupportFragmentManager().beginTransaction().add(R.id.contaner, supportMapFragment).commit();
+        supportMapFragment.getMapAsync(this);
         if (isPersmissionGranter) {
             if (checkGooglePlaServices()) {
-                supportMapFragment.getMapAsync(this);
+
             } else {
                 Toast.makeText(this, "Google Playservices Not Available ", Toast.LENGTH_SHORT).show();
             }
@@ -138,6 +139,7 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
+                Toast.makeText(AdminHomeActivity.this, "", Toast.LENGTH_SHORT).show();
 
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.title("My position");
@@ -148,7 +150,7 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(AdminHomeActivity.this);
-                builder.setTitle("Do you want to Add it as DangerZone");
+                builder.setTitle("Do you want to Add it as HotZone");
                 builder.setCancelable(false);
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
@@ -163,7 +165,7 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
                                 if (task.isSuccessful())
                                 {
                                     map.clear();
-                                    Toast.makeText(AdminHomeActivity.this, "DangerZone Added!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(AdminHomeActivity.this, " Added!", Toast.LENGTH_SHORT).show();
                                 }else
                                 {
                                     map.clear();
@@ -199,6 +201,10 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
                 sendUserToLoginActivity();
                 break;
 
+            case R.id.HotZone:
+                sendUserToLoginActivity();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -215,5 +221,6 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
         startActivity(intent);
         finish();
     }
+
 
 }
