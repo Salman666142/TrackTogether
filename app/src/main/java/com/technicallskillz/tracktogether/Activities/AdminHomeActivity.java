@@ -1,19 +1,25 @@
 package com.technicallskillz.tracktogether.Activities;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -32,6 +38,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,8 +47,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -48,8 +59,12 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.technicallskillz.tracktogether.R;
+import com.technicallskillz.tracktogether.Utills.DangerPeopleZone;
+import com.technicallskillz.tracktogether.Utills.DangerZone;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -61,6 +76,8 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
     DatabaseReference mRef;
     boolean isPersmissionGranter;
     GoogleMap map;
+    List<DangerZone> listDangerZone;
+    List<DangerPeopleZone> listDangerPeople;
 
 
 
@@ -91,6 +108,7 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
                 Toast.makeText(this, "Google Playservices Not Available ", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
     private boolean checkGooglePlaServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -164,11 +182,13 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
                             public void onComplete(@NonNull Task task) {
                                 if (task.isSuccessful())
                                 {
-                                    map.clear();
+                                  map.clear();
+                                    LoadHotZone();
                                     Toast.makeText(AdminHomeActivity.this, " Added!", Toast.LENGTH_SHORT).show();
                                 }else
                                 {
                                     map.clear();
+                                    LoadHotZone();
                                     Toast.makeText(AdminHomeActivity.this, ""+task.getException(), Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -183,7 +203,54 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
+        LoadHotZone();
 
+
+    }
+
+    private void LoadHotZone() {
+
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                listDangerZone = new ArrayList<>();
+             map.clear();
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        com.technicallskillz.tracktogether.Utills.DangerZone dangerZone = dataSnapshot.getValue(DangerZone.class);
+                        listDangerZone.add(dangerZone);
+                    }
+                    for (int i = 0; i < listDangerZone.size(); i++) {
+                        addMarker(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), "place","");
+                      //  addCircle(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), 100);
+                        //CalculatedDistance(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()),"zone");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+    private void addMarker(LatLng latLng, String type,String effect) {
+        MarkerOptions markerOptions1 = new MarkerOptions();
+
+            markerOptions1.position(latLng);
+            markerOptions1.icon(bitmapDescriptorFromVectorPlace(this, R.drawable.danger_icon_bg));
+        map.addMarker(markerOptions1.title("Hot Zone"));
+
+    }
+    private BitmapDescriptor bitmapDescriptorFromVectorPlace(Context context, @DrawableRes int vectorDrawableResourceId) {
+        Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_danger);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     @Override
@@ -202,11 +269,27 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
                 break;
 
             case R.id.HotZone:
-                sendUserToLoginActivity();
+                sendAdminToHotZon();
+                break;
+
+            case R.id.EffectedUser:
+                sendAdminTOEffectedList();
                 break;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendAdminToHotZon() {
+        Intent intent = new Intent(AdminHomeActivity.this, HotZoneListActivity.class);
+        startActivity(intent);
+
+    }
+
+    private void sendAdminTOEffectedList() {
+        Intent intent = new Intent(AdminHomeActivity.this, EffectedUserActivity.class);
+        startActivity(intent);
+
     }
 
     private void ClearSharePrefernce() {

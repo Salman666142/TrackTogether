@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -14,13 +15,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TrackTogether">
-        <activity android:name=".Activities.EffectedUserActivity"></activity>
+        <activity android:name=".Activities.HotZoneListActivity"></activity>
+        <activity android:name=".Activities.EffectedUserActivity" />
         <activity android:name=".Activities.AdminHomeActivity" />
         <activity android:name=".Activities.ProfileActivity" />
-        <activity android:name=".Activities.SetupActivity" />
+        <activity android:name=".Activities.SetupActivity" >
+
+        </activity>
         <activity android:name=".Activities.RegisterActivity" />
         <activity android:name=".Activities.LoginActivity" />
         <activity android:name=".Activities.SplashActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

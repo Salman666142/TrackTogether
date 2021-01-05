@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     for (int i = 0; i < listUser.size(); i++) {
 
                         addMarker(new LatLng(listUser.get(i).getLat(), listUser.get(i).getLong()), "user", listUser.get(i).getEffected());
-                        addCircle(new LatLng(listUser.get(i).getLat(), listUser.get(i).getLong()), 100);
+                       // addCircle(new LatLng(listUser.get(i).getLat(), listUser.get(i).getLong()), 100);
                         CalculatedDistance(new LatLng(listUser.get(i).getLat(), listUser.get(i).getLong()),"user");
 
                     }
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     for (int i = 0; i < listDangerZone.size(); i++) {
                         addMarker(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), "place","");
-                        addCircle(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), 100);
+                      //  addCircle(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), 100);
                         CalculatedDistance(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()),"zone");
                     }
                 }
@@ -301,25 +301,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void addCircle(LatLng latLng, float radius) {
-        CircleOptions circleOptions = new CircleOptions();
-        circleOptions.center(latLng);
-        circleOptions.radius(20);
-        circleOptions.fillColor(Color.TRANSPARENT);
-        circleOptions.strokeWidth(6);
-        circleOptions.strokeColor(Color.RED);
-        googleMap.addCircle(circleOptions);
-    }
+//    private void addCircle(LatLng latLng, float radius) {
+//        CircleOptions circleOptions = new CircleOptions();
+//        circleOptions.center(latLng);
+//        circleOptions.radius(20);
+//        circleOptions.fillColor(Color.TRANSPARENT);
+//        circleOptions.strokeWidth(6);
+//        circleOptions.strokeColor(Color.RED);
+//        googleMap.addCircle(circleOptions);
+//    }
 
-    private void addCircleNormalPerson(LatLng latLng, float radius) {
-        CircleOptions circleOptions1 = new CircleOptions();
-        circleOptions1.center(latLng);
-        circleOptions1.radius(20);
-        circleOptions1.fillColor(Color.TRANSPARENT);
-        circleOptions1.strokeWidth(6);
-        circleOptions1.strokeColor(Color.GREEN);
-        googleMap.addCircle(circleOptions1);
-    }
+//    private void addCircleNormalPerson(LatLng latLng, float radius) {
+//        CircleOptions circleOptions1 = new CircleOptions();
+//        circleOptions1.center(latLng);
+//        circleOptions1.radius(20);
+//        circleOptions1.fillColor(Color.TRANSPARENT);
+//        circleOptions1.strokeWidth(6);
+//        circleOptions1.strokeColor(Color.GREEN);
+//        googleMap.addCircle(circleOptions1);
+//    }
 
     private void LoadUserProfile() {
         mRefUser.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
@@ -422,9 +422,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(MainActivity.this, MainActivity.class));
                 return true;
 
-            case R.id.profile:
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-                return true;
+
 
             case R.id.logout:
                 mAuth.signOut();
@@ -480,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (googleMap != null) {
             marker = googleMap.addMarker(markerOptions);
-            addCircleNormalPerson(latLng, 100);
+            //addCircleNormalPerson(latLng, 100);
 
             if (!isAnimateMap) {
                 isAnimateMap = true;

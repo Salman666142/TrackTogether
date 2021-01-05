@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -66,9 +67,12 @@ public class SetupActivity extends AppCompatActivity {
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent pickIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                pickIntent.setType("image/*");
-                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+//                Intent pickIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//                pickIntent.setType("image/*");
+//                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+
+                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(takePicture, IMAGE_PICKER_SELECT);//
             }
         });
         btnSave.setOnClickListener(new View.OnClickListener() {
