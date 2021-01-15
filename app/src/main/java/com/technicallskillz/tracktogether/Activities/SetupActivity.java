@@ -3,12 +3,16 @@ package com.technicallskillz.tracktogether.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,8 +28,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 import com.technicallskillz.tracktogether.R;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -33,7 +44,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class SetupActivity extends AppCompatActivity {
 
     private static final int IMAGE_PICKER_SELECT =1010 ;
-
+    boolean isPersmissionGranter;
+    boolean isPersmissionGranter1;
     CircleImageView profileImage;
     EditText inputUsername,inputCity,inputCountry,inputProfession;
     Button btnSave;
@@ -57,7 +69,8 @@ public class SetupActivity extends AppCompatActivity {
         inputCountry=findViewById(R.id.inputCountry);
         btnSave=findViewById(R.id.btnSave);
 
-
+        chceckPermission();
+        chceckPermission1();
         mLoadingBar=new ProgressDialog(this);
         mAuth=FirebaseAuth.getInstance();
         mUser=mAuth.getCurrentUser();
@@ -70,9 +83,18 @@ public class SetupActivity extends AppCompatActivity {
 //                Intent pickIntent = new Intent(Intent.ACTION_GET_CONTENT);
 //                pickIntent.setType("image/*");
 //                startActivityForResult(pickIntent, IMAGE_PICKER_SELECT);
+                if (isPersmissionGranter1)
+                {
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(MediaStore.Images.Media.TITLE, "New Pic");
+                    contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Front Camera Pic");
+                    imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intent, IMAGE_PICKER_SELECT);
+                }
 
-                Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(takePicture, IMAGE_PICKER_SELECT);//
+
             }
         });
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -81,16 +103,19 @@ public class SetupActivity extends AppCompatActivity {
                 SaveProfile();
             }
         });
-
-
     }
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER_SELECT && data != null) {
-            imageUri = data.getData();
-            profileImage.setImageURI(imageUri);
 
-            //handle video
+        if (requestCode == IMAGE_PICKER_SELECT) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(SetupActivity.this.getContentResolver(), imageUri);
+                profileImage.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 
@@ -163,4 +188,56 @@ public class SetupActivity extends AppCompatActivity {
         field.setError(s);
         field.requestFocus();
     }
+
+    private void chceckPermission() {
+        Dexter.withContext(this).withPermission(Manifest.permission.CAMERA   ).withListener(new PermissionListener() {
+            @Override
+            public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                isPersmissionGranter = true;
+                Toast.makeText(SetupActivity.this, "Permission Granter", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), "");
+                intent.setData(uri);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                permissionToken.continuePermissionRequest();
+            }
+        }).check();
+    }
+    private void chceckPermission1() {
+        Dexter.withContext(this).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE).withListener(new PermissionListener() {
+            @Override
+            public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                isPersmissionGranter1 = true;
+                Toast.makeText(SetupActivity.this, "Permission Granter", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), "");
+                intent.setData(uri);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                permissionToken.continuePermissionRequest();
+            }
+        }).check();
+    }
 }
+
+
+
+
+

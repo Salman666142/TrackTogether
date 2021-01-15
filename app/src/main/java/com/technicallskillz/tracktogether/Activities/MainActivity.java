@@ -17,16 +17,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -41,7 +38,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -64,8 +60,8 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.squareup.picasso.Picasso;
 import com.technicallskillz.tracktogether.R;
-import com.technicallskillz.tracktogether.Utills.DangerPeopleZone;
-import com.technicallskillz.tracktogether.Utills.DangerZone;
+import com.technicallskillz.tracktogether.Utills.HotZonePeople;
+import com.technicallskillz.tracktogether.Utills.HotZone;
 import com.technicallskillz.tracktogether.Utills.User;
 
 import java.util.ArrayList;
@@ -81,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     CircleImageView profileImage;
     TextView Username;
+    boolean already=true;
 
     FirebaseAuth mAuth;
     FirebaseUser mUser;
@@ -91,8 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     String profileImageUrl;
     String username;
     GoogleMap googleMap;
-    List<DangerZone> listDangerZone;
-    List<DangerPeopleZone> listDangerPeople;
+    List<HotZone> listHotZone;
     List<User> listUser;
     Marker marker;
     MarkerOptions markerOptions;
@@ -118,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        DangerZone = FirebaseDatabase.getInstance().getReference().child("DangerZone");
+        DangerZone = FirebaseDatabase.getInstance().getReference().child("HotZone");
         mRefUser = FirebaseDatabase.getInstance().getReference().child("Users");
 
         View v = navigationView.inflateHeaderView(R.layout.drawer_header_user);
@@ -196,20 +192,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DangerZone.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                listDangerZone = new ArrayList<>();
-                if (listDangerZone != null) {
-                    listDangerZone.clear();
-                    listDangerZone = new ArrayList<>();
+                listHotZone = new ArrayList<>();
+                if (listHotZone != null) {
+                    listHotZone.clear();
+                    listHotZone = new ArrayList<>();
                 }
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        com.technicallskillz.tracktogether.Utills.DangerZone dangerZone = dataSnapshot.getValue(DangerZone.class);
-                        listDangerZone.add(dangerZone);
+                        HotZone hotZone = dataSnapshot.getValue(HotZone.class);
+                        listHotZone.add(hotZone);
                     }
-                    for (int i = 0; i < listDangerZone.size(); i++) {
-                        addMarker(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), "place","");
+                    for (int i = 0; i < listHotZone.size(); i++) {
+                        addMarker(new LatLng(listHotZone.get(i).getLat(), listHotZone.get(i).getLong()), "place","");
                       //  addCircle(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), 100);
-                        CalculatedDistance(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()),"zone");
+                        CalculatedDistance(new LatLng(listHotZone.get(i).getLat(), listHotZone.get(i).getLong()),"zone");
                     }
                 }
             }
@@ -326,11 +322,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    profileImageUrl = snapshot.child("profileImageUrl").getValue().toString();
-                    username = snapshot.child("username").getValue().toString();
-                    status = snapshot.child("effected").getValue().toString();
-                    Picasso.get().load(profileImageUrl).into(profileImage);
-                    Username.setText(username);
+                    try {
+                        profileImageUrl = snapshot.child("profileImageUrl").getValue().toString();
+                        username = snapshot.child("username").getValue().toString();
+                        status = snapshot.child("effected").getValue().toString();
+                        Picasso.get().load(profileImageUrl).into(profileImage);
+                        Username.setText(username);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 

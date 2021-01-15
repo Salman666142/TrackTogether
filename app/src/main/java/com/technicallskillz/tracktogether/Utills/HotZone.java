@@ -1,15 +1,15 @@
 package com.technicallskillz.tracktogether.Utills;
 
-public class DangerZone {
+public class HotZone {
     private double Lat;
     private double Long;
 
-    public DangerZone(double lat, double aLong) {
+    public HotZone(double lat, double aLong) {
         Lat = lat;
         Long = aLong;
     }
 
-    public DangerZone() {
+    public HotZone() {
     }
 
     public double getLat() {

@@ -4,10 +4,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -16,19 +13,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,7 +36,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -59,14 +50,12 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.technicallskillz.tracktogether.R;
-import com.technicallskillz.tracktogether.Utills.DangerPeopleZone;
-import com.technicallskillz.tracktogether.Utills.DangerZone;
+import com.technicallskillz.tracktogether.Utills.HotZonePeople;
+import com.technicallskillz.tracktogether.Utills.HotZone;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -76,8 +65,10 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
     DatabaseReference mRef;
     boolean isPersmissionGranter;
     GoogleMap map;
-    List<DangerZone> listDangerZone;
-    List<DangerPeopleZone> listDangerPeople;
+    List<HotZone> listHotZone;
+    List<HotZonePeople> listDangerPeople;
+    boolean already=true;
+
 
 
 
@@ -95,7 +86,7 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        mRef = FirebaseDatabase.getInstance().getReference().child("DangerZone");
+        mRef = FirebaseDatabase.getInstance().getReference().child("HotZone");
 
         chceckPermission();
         SupportMapFragment supportMapFragment = SupportMapFragment.newInstance();
@@ -154,6 +145,15 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+
+        if (already)
+        {
+            LatLng latLng1 = new LatLng(1.290270, 103.851959);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng1, 12 );
+            googleMap.animateCamera(cameraUpdate);
+            already=false;
+        }
+        map.getUiSettings().setZoomControlsEnabled(true);
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
@@ -213,15 +213,15 @@ public class AdminHomeActivity extends AppCompatActivity implements OnMapReadyCa
         mRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                listDangerZone = new ArrayList<>();
+                listHotZone = new ArrayList<>();
              map.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        com.technicallskillz.tracktogether.Utills.DangerZone dangerZone = dataSnapshot.getValue(DangerZone.class);
-                        listDangerZone.add(dangerZone);
+                        HotZone hotZone = dataSnapshot.getValue(HotZone.class);
+                        listHotZone.add(hotZone);
                     }
-                    for (int i = 0; i < listDangerZone.size(); i++) {
-                        addMarker(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), "place","");
+                    for (int i = 0; i < listHotZone.size(); i++) {
+                        addMarker(new LatLng(listHotZone.get(i).getLat(), listHotZone.get(i).getLong()), "place","");
                       //  addCircle(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()), 100);
                         //CalculatedDistance(new LatLng(listDangerZone.get(i).getLat(), listDangerZone.get(i).getLong()),"zone");
                     }

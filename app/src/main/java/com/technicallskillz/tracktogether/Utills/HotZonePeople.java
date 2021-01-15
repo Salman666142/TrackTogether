@@ -1,20 +1,20 @@
 package com.technicallskillz.tracktogether.Utills;
 
-public class DangerPeopleZone {
+public class HotZonePeople {
 
     private double Lat;
     private double Long;
     private String type;
     private String status;
 
-    public DangerPeopleZone(double lat, double aLong, String type, String status) {
+    public HotZonePeople(double lat, double aLong, String type, String status) {
         Lat = lat;
         Long = aLong;
         this.type = type;
         this.status = status;
     }
 
-    public DangerPeopleZone() {
+    public HotZonePeople() {
     }
 
     public double getLat() {

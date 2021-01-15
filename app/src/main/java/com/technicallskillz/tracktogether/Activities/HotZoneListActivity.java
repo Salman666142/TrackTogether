@@ -3,6 +3,7 @@ package com.technicallskillz.tracktogether.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,13 +37,20 @@ public class HotZoneListActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser mUser;
 
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hot_zone_list);
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        HotZone = FirebaseDatabase.getInstance().getReference().child("DangerZone");
+        HotZone = FirebaseDatabase.getInstance().getReference().child("HotZone");
+
+        toolbar = findViewById(R.id.appbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("HotZone List");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recyclerView = findViewById(R.id.effectedRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

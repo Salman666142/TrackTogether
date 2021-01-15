@@ -40,8 +40,6 @@ public class LoginActivity extends AppCompatActivity {
     DatabaseReference DataRef;
     boolean isAdmin;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
