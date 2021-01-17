@@ -56,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         admin = FirebaseDatabase.getInstance().getReference().child("Admin");
         mRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        DataRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         mUser=mAuth.getCurrentUser();
         createNewAccount.setOnClickListener(view -> {
